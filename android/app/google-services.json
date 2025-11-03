@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "75987539471",
+    "project_id": "shake-to-quote-1cd8c",
+    "storage_bucket": "shake-to-quote-1cd8c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:75987539471:android:d10e71f98200a76858b57a",
+        "android_client_info": {
+          "package_name": "com.example.shake_to_quote"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcrqOjKLzdWEo71TKw3F2LLDvc45HJiWQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
