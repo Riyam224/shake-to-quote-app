@@ -9,7 +9,9 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.content.Context
-
+import android.media.MediaPlayer
+import android.os.Vibrator
+import android.os.VibrationEffect
 class MainActivity : FlutterActivity(), SensorEventListener {
 
     private val METHOD = "shake_channel"
@@ -18,6 +20,8 @@ class MainActivity : FlutterActivity(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private var eventSink: EventChannel.EventSink? = null
     private var lastTime: Long = 0
+
+    private var mediaPlayer: MediaPlayer? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -63,6 +67,35 @@ class MainActivity : FlutterActivity(), SensorEventListener {
         sensorManager.unregisterListener(this)
     }
 
+    private  fun playShakeSound() {
+        if (mediaPlayer == null) {
+            mediaPlayer = MediaPlayer.create(this, R.raw.shake_sound)
+        }
+       // to avoid repeat the sound
+        if (mediaPlayer?.isPlaying == true) {
+            mediaPlayer?.seekTo(0)
+        } else {
+            mediaPlayer?.start()
+        }
+
+    }
+
+    private fun vibratePhone() {
+        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+
+        // للأندرويد 8.0 (Oreo) وما فوق نستخدم VibrationEffect
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val vibrationEffect = VibrationEffect.createOneShot(
+                200, // المدة بالمللي ثانية (هنا 0.2 ثانية)
+                VibrationEffect.DEFAULT_AMPLITUDE
+            )
+            vibrator.vibrate(vibrationEffect)
+        } else {
+            // للأجهزة القديمة
+            vibrator.vibrate(200)
+        }
+    }
+
     override fun onSensorChanged(event: SensorEvent?) {
         if (event == null) return
 
@@ -75,9 +108,23 @@ class MainActivity : FlutterActivity(), SensorEventListener {
         // ⚡ Detect shake based on acceleration threshold
         if (acceleration > 12 && System.currentTimeMillis() - lastTime > 1000) {
             lastTime = System.currentTimeMillis()
-            eventSink?.success("shake")
+             playShakeSound() // play sound 🎵
+             vibratePhone() // play vibration
+            eventSink?.success("shake") // send the event to flutter
         }
+
+
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+
+
+//    destroy the media player ✨
+    override fun onDestroy() {
+        mediaPlayer?.release()
+        mediaPlayer = null
+        super.onDestroy()
+    }
+
+
 }

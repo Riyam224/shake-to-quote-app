@@ -1,3 +1,7 @@
 {
-   "cmake.sourceDirectory": "/Users/r/StudioProjects/Flutter Mentorship /week8/shake_to_quote/linux/flutter"
+   "cmake.sourceDirectory": "/Users/r/StudioProjects/Flutter Mentorship /week8/shake_to_quote/linux/flutter",
+   "flutterTools.displayGetxContextMenu": false,
+   "flutterTools.displayMobxContextMenu": false,
+   "flutterTools.displayRiverpodContextMenu": false,
+   "flutterTools.displayModularContextMenu": false
 }

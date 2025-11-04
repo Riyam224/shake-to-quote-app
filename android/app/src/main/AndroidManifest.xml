@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.shake_to_quote">
+
+    <!-- ✅ start vibration  -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
         android:label="shake_to_quote"
         android:name="${applicationName}"

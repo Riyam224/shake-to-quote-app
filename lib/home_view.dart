@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
@@ -36,6 +38,9 @@ class _HomeViewState extends State<HomeView> {
     "The future belongs to those who believe in the beauty of their dreams. 🌟",
   ];
 
+  // todo initial color
+  Color currentColor = const Color.fromARGB(255, 230, 203, 255);
+
   @override
   void initState() {
     super.initState();
@@ -46,7 +51,7 @@ class _HomeViewState extends State<HomeView> {
   void _listenToShake() {
     _shakeChannel.receiveBroadcastStream().listen((event) {
       if (event == "shake") {
-        _showRandomQuote();
+        _showRandomQuoteAndColor();
       }
     });
   }
@@ -59,26 +64,46 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
-  void _showRandomQuote() {
+  void _showRandomQuoteAndColor() {
     setState(() {
       _quote = (_quotes..shuffle()).first;
+
+      // Generate a random color
+      Color newColor;
+      do {
+        newColor = Color.fromARGB(
+          255,
+          Random().nextInt(256),
+          Random().nextInt(256),
+          Random().nextInt(256),
+        );
+      } while (newColor == currentColor);
+
+      currentColor = newColor;
     });
   }
+
+  // todo
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfff3e5f5),
-      body: Center(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 500),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              _quote,
-              key: ValueKey(_quote),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
+      body: AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        color: currentColor,
+        child: Center(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                _quote,
+                key: ValueKey(_quote),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ),
           ),
         ),
