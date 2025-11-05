@@ -1022,7 +1022,7 @@ This is a mentorship project, but suggestions and improvements are welcome! Feel
 
 This project is part of the **Flutter Mentorship Program - Week 8**.
 
-Built with love and Flutter by [Your Name]
+Built with love and Flutter by Riyam
 
 ---
 
