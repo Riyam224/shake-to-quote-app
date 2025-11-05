@@ -36,6 +36,7 @@
 **Shake to Quote** is a delightful motivational quotes app that showcases the power of **Flutter Platform Channels** to bridge native Android functionality with Flutter's beautiful UI. When you shake your device, the app responds with a random motivational quote, beautiful pastel background colors, smooth animations, satisfying sound effects, and haptic feedback!
 
 This project demonstrates:
+
 - ✅ **MethodChannel** for Flutter-to-Native communication
 - ✅ **EventChannel** for Native-to-Flutter event streaming
 - ✅ **Android Sensor API** integration (Accelerometer)
@@ -71,17 +72,31 @@ This project demonstrates:
 
 ---
 
-## Demo
+## 💫 Demo
 
 <div align="center">
 
-![App Demo](screenshots/demo.gif)
+## 🎥 App Demo — Shake to Get a Quote
 
-*Shake your phone to see motivational quotes with beautiful animations!*
+<video src="https://github.com/user-attachments/assets/c69f433b-05c0-4e61-95e2-6d53c1d60a70"
+       controls
+       autoplay
+       muted
+       loop
+       width="480"
+       style="border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin-top: 12px;">
+  Your browser does not support the video tag.
+</video>
+
+<br/>
+
+✨ *Shake your phone to get an instant dose of motivation!* ✨  
+🪄 *Beautiful color transitions and sound effects included!*  
 
 </div>
 
 The app features:
+
 1. Initial welcome screen with invitation to shake
 2. Smooth color transitions when shaking
 3. Random quote display with fade animation
@@ -140,12 +155,14 @@ This app uses a **hybrid architecture** combining Flutter's cross-platform UI wi
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd shake_to_quote
    ```
 
 2. **Install dependencies**
+
    ```bash
    flutter pub get
    ```
@@ -155,6 +172,7 @@ This app uses a **hybrid architecture** combining Flutter's cross-platform UI wi
    - Connect via USB cable
 
 4. **Run the app**
+
    ```bash
    flutter run
    ```
@@ -253,6 +271,7 @@ private fun stopSensor() {
 ```
 
 **Key Points:**
+
 - `SENSOR_DELAY_NORMAL`: Balances responsiveness with battery efficiency
 - Proper lifecycle management: registers on start, unregisters on stop
 - Uses `SensorEventListener` interface for real-time sensor data
@@ -283,6 +302,7 @@ override fun onSensorChanged(event: SensorEvent?) {
 ```
 
 **Algorithm Details:**
+
 - **3D Acceleration**: `√(x² + y² + z²)` calculates total acceleration magnitude
 - **Threshold**: 12 units (tuned for comfortable shake detection)
 - **Debouncing**: 1000ms cooldown prevents multiple triggers
@@ -314,6 +334,7 @@ override fun onDestroy() {
 ```
 
 **Features:**
+
 - **Lazy initialization**: Creates MediaPlayer only when needed
 - **Smart playback**: Restarts sound from beginning if already playing
 - **Resource cleanup**: Releases MediaPlayer in `onDestroy()` to prevent memory leaks
@@ -343,11 +364,13 @@ private fun vibratePhone() {
 ```
 
 **Key Features:**
+
 - **Version compatibility**: Supports Android API 26+ and below
 - **Duration**: 200ms provides satisfying tactile feedback
 - **Default amplitude**: Uses system-standard intensity
 
 **Required Permission** (in [AndroidManifest.xml](android/app/src/main/AndroidManifest.xml)):
+
 ```xml
 <uses-permission android:name="android.permission.VIBRATE" />
 ```
@@ -410,6 +433,7 @@ void _listenToShake() {
 ```
 
 **How it works:**
+
 - `receiveBroadcastStream()`: Creates a broadcast stream from native events
 - Listens continuously for "shake" events
 - Triggers UI update when shake is detected
@@ -429,6 +453,7 @@ Future<void> _startShakeDetection() async {
 ```
 
 **Features:**
+
 - Error handling with `PlatformException`
 - Async/await for clean asynchronous code
 - Graceful failure with debug logging
@@ -449,6 +474,7 @@ Color _generatePastelColor() {
 ```
 
 **Why HSL?**
+
 - **Hue**: Controls the color type (red, blue, green, etc.)
 - **Saturation**: Medium values (50-80%) create soft, muted colors
 - **Lightness**: High values (75-90%) ensure pastel appearance
@@ -466,6 +492,7 @@ Color _getContrastingTextColor(Color bg) {
 ```
 
 **Algorithm:**
+
 - Uses **perceptual brightness** formula (weighted RGB)
 - Human eyes are more sensitive to green (0.587) than red (0.299) or blue (0.114)
 - Threshold of 0.6 provides good contrast balance
@@ -495,6 +522,7 @@ void _showRandomQuoteAndColor() {
 ```
 
 **Features:**
+
 - **Random quote selection**: Shuffle entire list and pick first
 - **Color diversity**: Ensures new color is different from current
 - **Contrast calculation**: Updates text color for readability
@@ -649,10 +677,7 @@ shake_to_quote/
 │   │   │
 │   │   └── AndroidManifest.xml      # App permissions (VIBRATE)
 │   │
-│   └── build.gradle                 # Android build configuration
-│
-├── screenshots/
-│   └── demo.gif                     # App demo animation
+│   └── build.gradle                 # Android build configuration              
 │
 ├── pubspec.yaml                     # Flutter dependencies
 └── README.md                        # This file!
@@ -663,17 +688,20 @@ shake_to_quote/
 ## Key Technologies
 
 ### Flutter & Dart
+
 - **Flutter SDK**: Cross-platform UI framework (^3.9.2)
 - **Dart Language**: Modern, reactive programming
 - **Material Design**: Beautiful, responsive UI components
 - **Animations**: AnimatedSwitcher, AnimatedContainer
 
 ### Platform Channels
+
 - **EventChannel**: Native → Flutter event streaming
 - **MethodChannel**: Flutter → Native method invocation
 - **Binary Messenger**: Low-level communication layer
 
 ### Native Android (Kotlin)
+
 - **SensorManager**: Access device sensors
 - **Accelerometer**: TYPE_ACCELEROMETER for motion detection
 - **MediaPlayer**: Audio playback engine
@@ -681,6 +709,7 @@ shake_to_quote/
 - **VibrationEffect**: Modern vibration API (Android 8.0+)
 
 ### Algorithms & Math
+
 - **3D Vector Magnitude**: `√(x² + y² + z²)` for acceleration
 - **HSL Color Space**: Intuitive pastel color generation
 - **Perceptual Brightness**: Weighted RGB for contrast calculation
@@ -787,32 +816,39 @@ AnimatedContainer and AnimatedSwitcher create smooth transitions
 ### Android Native Excellence
 
 ✅ **Custom Platform Channel Implementation**
+
 - Built from scratch without third-party shake detection packages
 - Deep understanding of Flutter-Native communication
 
 ✅ **Sensor Management**
+
 - Proper lifecycle with registration/unregistration
 - Efficient battery usage with `SENSOR_DELAY_NORMAL`
 
 ✅ **Debouncing Algorithm**
+
 - 1-second cooldown prevents excessive triggers
 - Uses `lastTime` variable for time-based filtering
 
 ✅ **Multi-Sensory Feedback**
+
 - Combined audio (MediaPlayer) and haptic (Vibrator) feedback
 - Enhanced user experience with multiple feedback channels
 
 ✅ **MediaPlayer Lifecycle Management**
+
 - Lazy initialization (created only when needed)
 - Smart playback with `seekTo(0)` to restart sound
 - Proper resource cleanup in `onDestroy()`
 
 ✅ **Android Version Compatibility**
+
 - Modern `VibrationEffect.createOneShot()` API (Android 8.0+)
 - Fallback to legacy `vibrate()` method for older versions
 - Uses `Build.VERSION.SDK_INT` check
 
 ✅ **Accelerometer Algorithm**
+
 - Calculates 3D acceleration magnitude: `√(x² + y² + z²)`
 - Threshold of 12 units (empirically tuned)
 - Considers all three axes for accurate detection
@@ -820,35 +856,42 @@ AnimatedContainer and AnimatedSwitcher create smooth transitions
 ### Flutter Implementation Excellence
 
 ✅ **Error Handling**
+
 - Platform exception handling with try-catch
 - Graceful failure with debug logging
 
 ✅ **Stream-based Architecture**
+
 - Uses EventChannel's `receiveBroadcastStream()`
 - Real-time event processing
 - Clean reactive programming pattern
 
 ✅ **Responsive UI**
+
 - Centered layout with comfortable padding (24.0 horizontal)
 - Full-screen background color changes
 - Adaptive text styling
 
 ✅ **Animation System**
+
 - `AnimatedSwitcher` with 800ms duration
 - `ValueKey` based on content for proper triggers
 - Smooth fade transitions with easeInOut curve
 
 ✅ **Color Generation**
+
 - HSL color space for intuitive pastel generation
 - Random but controlled (saturation 0.5-0.8, lightness 0.75-0.9)
 - Ensures color variety by checking against current
 
 ✅ **Contrast Calculation**
+
 - Perceptual brightness formula (weighted RGB)
 - Automatic black/white text color selection
 - Ensures readability on any background
 
 ✅ **State Management**
+
 - Simple `setState()` for UI updates
 - No external state management needed
 - Clean, maintainable code
@@ -885,6 +928,7 @@ The app requires the following permission in [AndroidManifest.xml](android/app/s
 ```
 
 **Why needed?**
+
 - Enables haptic feedback when shake is detected
 - Provides tactile confirmation of user interaction
 - Enhances overall user experience
@@ -911,18 +955,22 @@ The app requires the following permission in [AndroidManifest.xml](android/app/s
 ### Common Issues
 
 **Issue**: Shake detection not working
+
 - **Solution**: Make sure you're testing on a physical device, not an emulator
 - **Solution**: Check that sensors are enabled in device settings
 
 **Issue**: No sound playing
+
 - **Solution**: Verify `shake_sound.mp3` exists in `android/app/src/main/res/raw/`
 - **Solution**: Check device volume and ensure media volume is not muted
 
 **Issue**: No vibration
+
 - **Solution**: Verify VIBRATE permission in AndroidManifest.xml
 - **Solution**: Check device vibration settings
 
 **Issue**: Platform channel errors
+
 - **Solution**: Ensure channel names match exactly in both Kotlin and Dart
 - **Solution**: Run `flutter clean` and rebuild the app
 
@@ -945,14 +993,17 @@ This project showcases progressive learning and implementation:
 ## Learning Resources
 
 ### Platform Channels
+
 - [Flutter Platform Channels Documentation](https://flutter.dev/docs/development/platform-integration/platform-channels)
 - [Writing Custom Platform-Specific Code](https://flutter.dev/docs/development/platform-integration/platform-channels)
 
 ### Android Sensors
+
 - [Android Sensor Framework](https://developer.android.com/guide/topics/sensors/sensors_overview)
 - [Motion Sensors](https://developer.android.com/guide/topics/sensors/sensors_motion)
 
 ### Flutter Animations
+
 - [Introduction to Animations](https://flutter.dev/docs/development/ui/animations)
 - [AnimatedSwitcher Class](https://api.flutter.dev/flutter/widgets/AnimatedSwitcher-class.html)
 
