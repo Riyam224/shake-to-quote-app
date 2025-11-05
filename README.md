@@ -155,8 +155,8 @@ This app uses a **hybrid architecture** combining Flutter's cross-platform UI wi
 1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
-   cd shake_to_quote
+   git clone https://github.com/Riyam224/shake-to-quote-app.git
+   cd sshake-to-quote-app
    ```
 
 2. **Install dependencies**
