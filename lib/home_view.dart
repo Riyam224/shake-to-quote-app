@@ -1,7 +1,7 @@
-import 'dart:math';
+// ignore_for_file: deprecated_member_use
 
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:flutter/services.dart';
 
 class HomeView extends StatefulWidget {
@@ -12,13 +12,14 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  // todo handle events
+  // todo event and method channels
   static const EventChannel _shakeChannel = EventChannel('shake_events');
   static const MethodChannel _methodChannel = MethodChannel('shake_channel');
 
-  // todo first showed text
+  // todo initial text
   String _quote = "Shake your phone to get motivated! 💪";
-  // todo quotes
+
+  //  todo
   final List<String> _quotes = [
     "Believe in yourself 🌟",
     "Focus on progress, not perfection 🎯",
@@ -30,16 +31,12 @@ class _HomeViewState extends State<HomeView> {
     "Success is a process, not a destination. 🌟",
     "The only limit to our realization of tomorrow will be our doubts of today. 🌟",
     "The future belongs to those who believe in the beauty of their dreams. 🌟",
-    "The only way to do great work is to love what you do. 🌟",
     "Success is not final, failure is not fatal: it is the courage to continue that counts. 🌟",
-    "The future belongs to those who believe in the beauty of their dreams. 🌟",
-    "The only way to do great work is to love what you do. 🌟",
-    "Success is not final, failure is not fatal: it is the courage to continue that counts. 🌟",
-    "The future belongs to those who believe in the beauty of their dreams. 🌟",
   ];
 
-  // todo initial color
-  Color currentColor = const Color.fromARGB(255, 230, 203, 255);
+  //  todo initial colors
+  Color currentColor = const Color(0xFFEBD4FB); // pastel purple
+  Color textColor = Colors.black;
 
   @override
   void initState() {
@@ -48,14 +45,17 @@ class _HomeViewState extends State<HomeView> {
     _startShakeDetection();
   }
 
+  //  todo listen to shake
   void _listenToShake() {
     _shakeChannel.receiveBroadcastStream().listen((event) {
       if (event == "shake") {
+        debugPrint("🔥 Shake detected");
         _showRandomQuoteAndColor();
       }
     });
   }
 
+  //  todo start detection
   Future<void> _startShakeDetection() async {
     try {
       await _methodChannel.invokeMethod("startShake");
@@ -64,45 +64,63 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
+  /// 🎨 generate random colors
+  Color _generatePastelColor() {
+    final random = Random();
+    final hue = random.nextDouble() * 360; // زاوية اللون
+    final saturation = 0.5 + random.nextDouble() * 0.3; // درجة التشبع (متوسطة)
+    final lightness = 0.75 + random.nextDouble() * 0.15; // تفتيح اللون (pastel)
+
+    // convert  HSL to  RGB
+    return HSLColor.fromAHSL(1.0, hue, saturation, lightness).toColor();
+  }
+
   void _showRandomQuoteAndColor() {
     setState(() {
       _quote = (_quotes..shuffle()).first;
 
-      // Generate a random color
       Color newColor;
       do {
-        newColor = Color.fromARGB(
-          255,
-          Random().nextInt(256),
-          Random().nextInt(256),
-          Random().nextInt(256),
-        );
+        newColor = _generatePastelColor();
       } while (newColor == currentColor);
 
       currentColor = newColor;
+      textColor = _getContrastingTextColor(newColor);
+
+      debugPrint("🎨 New pastel color: $currentColor, textColor: $textColor");
     });
   }
 
-  // todo
+  // todo get contrasting color
+  Color _getContrastingTextColor(Color bg) {
+    final brightness =
+        (bg.red * 0.299 + bg.green * 0.587 + bg.blue * 0.114) / 255;
+    return brightness > 0.6 ? Colors.black : Colors.white;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: AnimatedContainer(
-        duration: const Duration(milliseconds: 500),
+        key: ValueKey(currentColor.value),
+        duration: const Duration(milliseconds: 800),
         curve: Curves.easeInOut,
         color: currentColor,
         child: Center(
           child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 500),
-
+            duration: const Duration(milliseconds: 800),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              key: ValueKey(_quote),
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Text(
                 _quote,
-                key: ValueKey(_quote),
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                  height: 1.4,
+                ),
               ),
             ),
           ),

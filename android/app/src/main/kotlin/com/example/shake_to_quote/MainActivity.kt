@@ -83,15 +83,15 @@ class MainActivity : FlutterActivity(), SensorEventListener {
     private fun vibratePhone() {
         val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
-        // للأندرويد 8.0 (Oreo) وما فوق نستخدم VibrationEffect
+        // For Android 8.0 (Oreo) and above, we use VibrationEffect
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             val vibrationEffect = VibrationEffect.createOneShot(
-                200, // المدة بالمللي ثانية (هنا 0.2 ثانية)
+                200, // milliseconds
                 VibrationEffect.DEFAULT_AMPLITUDE
             )
             vibrator.vibrate(vibrationEffect)
         } else {
-            // للأجهزة القديمة
+            // old devices
             vibrator.vibrate(200)
         }
     }
@@ -102,7 +102,7 @@ class MainActivity : FlutterActivity(), SensorEventListener {
         val x = event.values[0]
         val y = event.values[1]
         val z = event.values[2]
-
+       // todo
         val acceleration = Math.sqrt((x * x + y * y + z * z).toDouble())
 
         // ⚡ Detect shake based on acceleration threshold
