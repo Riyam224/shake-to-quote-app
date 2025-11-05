@@ -2,8 +2,6 @@
 
 <div align="center">
 
-![Demo](screenshots/demo.gif)
-
 *A beautiful Flutter app that displays motivational quotes when you shake your device!*
 
 **Built with Flutter & Native Android Integration**
@@ -76,7 +74,7 @@ This project demonstrates:
 
 <div align="center">
 
-## 🎥 App Demo — Shake to Get a Quote
+## 🎥 App Demo — Shake to Get a Quote and enable sound
 
 <video src="https://github.com/user-attachments/assets/c69f433b-05c0-4e61-95e2-6d53c1d60a70"
        controls
