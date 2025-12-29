@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -128,45 +129,102 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
     return brightness > 0.6 ? Colors.black : Colors.white;
   }
 
+  Widget _buildStyledQuote(String quote) {
+    final words = quote.split(' ');
+    final List<TextSpan> spans = [];
+
+    for (int i = 0; i < words.length; i++) {
+      final word = words[i];
+      final isEvenWord = i % 2 == 0;
+
+      spans.add(
+        TextSpan(
+          text: word,
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.w900,
+            color: isEvenWord ? textColor : textColor.withOpacity(0.4),
+            height: 1.3,
+            letterSpacing: 1.5,
+          ),
+        ),
+      );
+
+      if (i < words.length - 1) {
+        spans.add(const TextSpan(text: ' '));
+      }
+    }
+
+    return RichText(
+      textAlign: TextAlign.center,
+      text: TextSpan(children: spans),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: AnimatedContainer(
-        key: ValueKey(currentColor.value),
-        duration: const Duration(milliseconds: 800),
-        curve: Curves.easeInOut,
-        color: currentColor,
-        child: Center(
-          child: AnimatedBuilder(
-            animation: _shakeAnimation,
-            builder: (context, child) {
-              return Transform.translate(
-                offset: Offset(
-                  sin(_shakeAnimation.value * pi * 4) * 5,
-                  0,
-                ),
-                child: child,
-              );
-            },
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 800),
-              child: Padding(
-                key: ValueKey(_quote),
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Text(
-                  _quote,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
-                    height: 1.4,
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/bg.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+            child: Container(
+              color: Colors.black.withOpacity(0.1),
+            ),
+          ),
+          Center(
+            child: AnimatedBuilder(
+              animation: _shakeAnimation,
+              builder: (context, child) {
+                return Transform.translate(
+                  offset: Offset(
+                    sin(_shakeAnimation.value * pi * 4) * 5,
+                    0,
                   ),
+                  child: child,
+                );
+              },
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 800),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(
+                    scale: animation,
+                    child: FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    ),
+                  );
+                },
+                child: Container(
+                  key: ValueKey(_quote),
+                  margin: const EdgeInsets.symmetric(horizontal: 32.0),
+                  padding: const EdgeInsets.all(32.0),
+                  decoration: BoxDecoration(
+                    color: currentColor,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 30,
+                        spreadRadius: 5,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: _buildStyledQuote(_quote),
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

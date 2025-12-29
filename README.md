@@ -52,9 +52,11 @@ This project demonstrates:
 | Feature | Description |
 |---------|-------------|
 | **Shake Detection** | Uses accelerometer sensor to detect shake gestures with custom threshold (acceleration > 12) |
+| **Auto-Change Mode** | Quotes automatically change every 2 seconds with subtle shake animation when idle |
 | **Motivational Quotes** | Displays 11 inspiring quotes randomly selected from a curated collection |
-| **Dynamic Backgrounds** | Background changes to randomly generated pastel colors using HSL color space |
-| **Smooth Animations** | Quotes and backgrounds transition smoothly with 800ms fade animations |
+| **Dynamic Backgrounds** | Beautiful background image with blur effect (8px blur radius) |
+| **Pastel Popup Cards** | Quotes appear in rounded, shadowed cards with randomly generated pastel colors |
+| **Smooth Animations** | Multiple animations: scale, fade, and shake effects for immersive experience |
 | **Sound Effects** | Plays a custom shake sound (`shake_sound.mp3`) when shake is detected |
 | **Haptic Feedback** | Device vibrates for 200ms to provide tactile confirmation |
 | **Smart Text Color** | Automatically adjusts text color (black/white) based on background brightness |
@@ -62,11 +64,18 @@ This project demonstrates:
 
 ### Visual Features
 
+- **Background Image with Blur**: Static background image (`assets/images/bg.jpg`) with 8px Gaussian blur and 10% dark overlay
+- **Popup Card Design**: Quotes displayed in beautiful cards with:
+  - 24px rounded corners
+  - 30px shadow blur with 5px spread
+  - 32px padding for comfortable spacing
+  - Pastel colored background that changes with each quote
+- **Alternating Text Style**: Bold typography (900 weight, 32px) with alternating word opacity for visual impact
+- **Scale & Fade Transitions**: Quote cards scale in/out and fade in/out smoothly (800ms duration)
+- **Shake Animation**: Automatic quotes trigger a horizontal shake effect using elastic curve
+- **Letter Spacing**: 1.5px letter spacing for modern, impactful typography
 - **Pastel Color Generation**: Dynamically generates beautiful pastel colors using HSL (Hue, Saturation, Lightness) algorithm
 - **Contrast-Aware Text**: Calculates optimal text color for readability based on background brightness
-- **Centered Layout**: Clean, minimalist design with centered text and comfortable padding
-- **AnimatedContainer**: Smooth background color transitions with easing curves
-- **AnimatedSwitcher**: Elegant quote transitions with fade effect
 
 ---
 
@@ -76,20 +85,31 @@ This project demonstrates:
 
 ## 🎥 App Demo — Shake to Get a Quote and enable sound
 
-<video src="https://github.com/user-attachments/assets/c69f433b-05c0-4e61-95e2-6d53c1d60a70"
-       controls
-       autoplay
-       muted
-       loop
-       width="480"
-       style="border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin-top: 12px;">
-  Your browser does not support the video tag.
-</video>
+### Demo 1: Shake Detection with Sound & Haptics
+
+<img src="demos/demo1.gif" width="480" alt="Demo 1 - Shake Detection" style="border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin: 12px 0;">
+
+*GIF showing the shake gesture triggering quote changes with color transitions*
 
 <br/>
 
-✨ *Shake your phone to get an instant dose of motivation!* ✨  
-🪄 *Beautiful color transitions and sound effects included!*  
+### Demo 2: Auto-Change & Visual Effects
+
+https://github.com/user-attachments/assets/17213263-demo2.mp4
+
+<video src="demos/demo2.mp4"
+       controls
+       width="480"
+       style="border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin: 12px 0;">
+  Your browser does not support the video tag.
+</video>
+
+*Video demonstration of auto-change feature and smooth animations*
+
+<br/>
+
+✨ *Shake your phone to get an instant dose of motivation!* ✨
+🪄 *Beautiful color transitions and sound effects included!*
 
 </div>
 
@@ -384,13 +404,17 @@ private fun vibratePhone() {
 Flutter establishes communication channels with native code:
 
 ```dart
-class _HomeViewState extends State<HomeView> {
+class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin {
   static const EventChannel _shakeChannel = EventChannel('shake_events');
   static const MethodChannel _methodChannel = MethodChannel('shake_channel');
 
   String _quote = "Shake your phone to get motivated! 💪";
   Color currentColor = const Color(0xFFEBD4FB); // Initial pastel purple
   Color textColor = Colors.black;
+
+  Timer? _autoChangeTimer;
+  late AnimationController _shakeController;
+  late Animation<double> _shakeAnimation;
 
   final List<String> _quotes = [
     "Believe in yourself 🌟",
@@ -411,6 +435,31 @@ class _HomeViewState extends State<HomeView> {
     super.initState();
     _listenToShake();
     _startShakeDetection();
+    _startAutoChange();        // Start auto-change timer
+    _setupShakeAnimation();    // Setup shake animation
+  }
+
+  void _setupShakeAnimation() {
+    _shakeController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
+      CurvedAnimation(parent: _shakeController, curve: Curves.elasticIn),
+    );
+  }
+
+  void _startAutoChange() {
+    _autoChangeTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      _showRandomQuoteAndColor(isAutomatic: true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoChangeTimer?.cancel();
+    _shakeController.dispose();
+    super.dispose();
   }
 }
 ```
@@ -424,7 +473,7 @@ void _listenToShake() {
   _shakeChannel.receiveBroadcastStream().listen((event) {
     if (event == "shake") {
       debugPrint("🔥 Shake detected");
-      _showRandomQuoteAndColor();
+      _showRandomQuoteAndColor(isAutomatic: false);  // Physical shake = no animation
     }
   });
 }
@@ -500,7 +549,7 @@ Color _getContrastingTextColor(Color bg) {
 Handle shake events with smooth state updates:
 
 ```dart
-void _showRandomQuoteAndColor() {
+void _showRandomQuoteAndColor({bool isAutomatic = false}) {
   setState(() {
     // Get random quote (shuffle and pick first)
     _quote = (_quotes..shuffle()).first;
@@ -516,6 +565,11 @@ void _showRandomQuoteAndColor() {
 
     debugPrint("🎨 New pastel color: $currentColor, textColor: $textColor");
   });
+
+  // Trigger shake animation only for automatic changes
+  if (isAutomatic) {
+    _shakeController.forward(from: 0);
+  }
 }
 ```
 
@@ -526,60 +580,147 @@ void _showRandomQuoteAndColor() {
 - **Contrast calculation**: Updates text color for readability
 - **State update**: Triggers UI rebuild with `setState()`
 
-#### Beautiful Animated UI
+#### Beautiful Popup Card UI with Blur Background
 
-Create smooth, elegant animations:
+Create smooth, elegant animations with multiple visual effects:
 
 ```dart
 @override
 Widget build(BuildContext context) {
   return Scaffold(
-    body: AnimatedContainer(
-      key: ValueKey(currentColor.value),
-      duration: const Duration(milliseconds: 800),
-      curve: Curves.easeInOut,
-      color: currentColor,
-      child: Center(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 800),
-          child: Padding(
-            key: ValueKey(_quote),
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Text(
-              _quote,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-                color: textColor,
-                height: 1.4,
+    body: Stack(
+      children: [
+        // Background image layer
+        Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/bg.jpg'),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        // Blur effect layer
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+          child: Container(
+            color: Colors.black.withOpacity(0.1),
+          ),
+        ),
+        // Quote card with animations
+        Center(
+          child: AnimatedBuilder(
+            animation: _shakeAnimation,
+            builder: (context, child) {
+              return Transform.translate(
+                offset: Offset(
+                  sin(_shakeAnimation.value * pi * 4) * 5,
+                  0,
+                ),
+                child: child,
+              );
+            },
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 800),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return ScaleTransition(
+                  scale: animation,
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  ),
+                );
+              },
+              child: Container(
+                key: ValueKey(_quote),
+                margin: const EdgeInsets.symmetric(horizontal: 32.0),
+                padding: const EdgeInsets.all(32.0),
+                decoration: BoxDecoration(
+                  color: currentColor,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 30,
+                      spreadRadius: 5,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: _buildStyledQuote(_quote),
               ),
             ),
           ),
         ),
-      ),
+      ],
     ),
+  );
+}
+
+Widget _buildStyledQuote(String quote) {
+  final words = quote.split(' ');
+  final List<TextSpan> spans = [];
+
+  for (int i = 0; i < words.length; i++) {
+    final word = words[i];
+    final isEvenWord = i % 2 == 0;
+
+    spans.add(
+      TextSpan(
+        text: word,
+        style: TextStyle(
+          fontSize: 32,
+          fontWeight: FontWeight.w900,
+          color: isEvenWord ? textColor : textColor.withOpacity(0.4),
+          height: 1.3,
+          letterSpacing: 1.5,
+        ),
+      ),
+    );
+
+    if (i < words.length - 1) {
+      spans.add(const TextSpan(text: ' '));
+    }
+  }
+
+  return RichText(
+    textAlign: TextAlign.center,
+    text: TextSpan(children: spans),
   );
 }
 ```
 
-**Animation Components:**
+**Animation & Visual Components:**
 
-1. **AnimatedContainer**
-   - Animates background color changes
-   - 800ms duration with easeInOut curve
-   - `ValueKey` on color triggers animation
+1. **Stack Layout**
+   - Layers background image, blur effect, and quote card
+   - Enables complex visual composition
 
-2. **AnimatedSwitcher**
-   - Provides fade transition between quotes
-   - 800ms duration matches container animation
-   - `ValueKey` on quote content triggers transition
+2. **Background with Blur**
+   - `AssetImage` for background image
+   - `BackdropFilter` with 8px Gaussian blur
+   - 10% dark overlay for better contrast
 
-3. **Text Styling**
-   - 24px font size for readability
-   - Semi-bold weight (w600)
-   - Dynamic color for contrast
-   - 1.4 line height for comfortable spacing
+3. **Shake Animation (Auto-change only)**
+   - `AnimatedBuilder` with custom shake animation
+   - Horizontal translation using sine wave
+   - Elastic curve for natural bounce effect
+
+4. **Scale & Fade Transition**
+   - `ScaleTransition` makes card scale in/out
+   - `FadeTransition` makes card fade in/out
+   - Combined for smooth popup effect (800ms)
+
+5. **Popup Card Design**
+   - 24px rounded corners
+   - 30px shadow blur with 5px spread
+   - 32px padding for spacing
+   - Pastel colored background
+
+6. **Alternating Text Style**
+   - Bold typography (900 weight, 32px)
+   - Even words: full opacity
+   - Odd words: 40% opacity
+   - 1.5px letter spacing for impact
 
 ---
 
@@ -663,21 +804,25 @@ shake_to_quote/
 │
 ├── lib/
 │   ├── main.dart                    # App entry point, MaterialApp configuration
-│   └── home_view.dart               # Main UI, shake detection, state management
+│   └── home_view.dart               # Main UI, animations, auto-change, state management
 │
 ├── android/
 │   ├── app/src/main/
 │   │   ├── kotlin/com/example/shake_to_quote/
-│   │   │   └── MainActivity.kt      # Native Android implementation
+│   │   │   └── MainActivity.kt      # Native Android shake detection
 │   │   │
 │   │   ├── res/raw/
 │   │   │   └── shake_sound.mp3      # Shake sound effect
 │   │   │
 │   │   └── AndroidManifest.xml      # App permissions (VIBRATE)
 │   │
-│   └── build.gradle                 # Android build configuration              
+│   └── build.gradle                 # Android build configuration
 │
-├── pubspec.yaml                     # Flutter dependencies
+├── assets/
+│   └── images/
+│       └── bg.jpg                   # Background image
+│
+├── pubspec.yaml                     # Flutter dependencies & assets
 └── README.md                        # This file!
 ```
 
@@ -688,9 +833,11 @@ shake_to_quote/
 ### Flutter & Dart
 
 - **Flutter SDK**: Cross-platform UI framework (^3.9.2)
-- **Dart Language**: Modern, reactive programming
+- **Dart Language**: Modern, reactive programming with async/await
 - **Material Design**: Beautiful, responsive UI components
-- **Animations**: AnimatedSwitcher, AnimatedContainer
+- **Animations**: AnimatedSwitcher, AnimatedContainer, AnimatedBuilder, ScaleTransition, FadeTransition
+- **Timer API**: Periodic timer for auto-change functionality
+- **dart:ui**: ImageFilter for background blur effects
 
 ### Platform Channels
 
@@ -893,6 +1040,28 @@ AnimatedContainer and AnimatedSwitcher create smooth transitions
 - Simple `setState()` for UI updates
 - No external state management needed
 - Clean, maintainable code
+- Proper lifecycle management with `dispose()`
+
+✅ **Auto-Change Feature**
+
+- `Timer.periodic` updates quotes every 2 seconds
+- Differentiates between physical shake and auto-change
+- Triggers shake animation only for automatic changes
+- Smooth, continuous quote rotation
+
+✅ **Advanced Animations**
+
+- Multiple simultaneous animations (scale, fade, shake)
+- `AnimationController` with `SingleTickerProviderStateMixin`
+- Sine wave-based shake motion with elastic curve
+- Custom `transitionBuilder` for popup effect
+
+✅ **Background Blur Effect**
+
+- `BackdropFilter` with Gaussian blur (8px)
+- Stack-based layering system
+- Dark overlay for enhanced contrast
+- Professional, modern aesthetic
 
 ---
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shake_to_quote/home_view.dart';
 
-void main() {
+void main() { 
   runApp(const ShakeToQuoteApp());
 }
 
