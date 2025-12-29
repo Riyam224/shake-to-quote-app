@@ -95,16 +95,9 @@ This project demonstrates:
 
 ### Demo 2: Auto-Change & Visual Effects
 
-https://github.com/user-attachments/assets/17213263-demo2.mp4
+<img src="demos/demo2.gif" width="480" alt="Demo 2 - Auto-Change & Visual Effects" style="border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin: 12px 0;">
 
-<video src="demos/demo2.mp4"
-       controls
-       width="480"
-       style="border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); margin: 12px 0;">
-  Your browser does not support the video tag.
-</video>
-
-*Video demonstration of auto-change feature and smooth animations*
+*GIF demonstration of auto-change feature and smooth animations*
 
 <br/>
 
