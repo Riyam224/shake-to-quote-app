@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +12,7 @@ class HomeView extends StatefulWidget {
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin {
   // todo event and method channels
   static const EventChannel _shakeChannel = EventChannel('shake_events');
   static const MethodChannel _methodChannel = MethodChannel('shake_channel');
@@ -38,11 +39,36 @@ class _HomeViewState extends State<HomeView> {
   Color currentColor = const Color(0xFFEBD4FB); // pastel purple
   Color textColor = Colors.black;
 
+  Timer? _autoChangeTimer;
+  late AnimationController _shakeController;
+  late Animation<double> _shakeAnimation;
+
   @override
   void initState() {
     super.initState();
     _listenToShake();
     _startShakeDetection();
+    _startAutoChange();
+    _setupShakeAnimation();
+  }
+
+  void _setupShakeAnimation() {
+    _shakeController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _shakeAnimation = Tween<double>(begin: 0, end: 10).animate(
+      CurvedAnimation(
+        parent: _shakeController,
+        curve: Curves.elasticIn,
+      ),
+    );
+  }
+
+  void _startAutoChange() {
+    _autoChangeTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      _showRandomQuoteAndColor(isAutomatic: true);
+    });
   }
 
   //  todo listen to shake
@@ -50,7 +76,7 @@ class _HomeViewState extends State<HomeView> {
     _shakeChannel.receiveBroadcastStream().listen((event) {
       if (event == "shake") {
         debugPrint("🔥 Shake detected");
-        _showRandomQuoteAndColor();
+        _showRandomQuoteAndColor(isAutomatic: false);
       }
     });
   }
@@ -75,7 +101,7 @@ class _HomeViewState extends State<HomeView> {
     return HSLColor.fromAHSL(1.0, hue, saturation, lightness).toColor();
   }
 
-  void _showRandomQuoteAndColor() {
+  void _showRandomQuoteAndColor({bool isAutomatic = false}) {
     setState(() {
       _quote = (_quotes..shuffle()).first;
 
@@ -89,6 +115,10 @@ class _HomeViewState extends State<HomeView> {
 
       debugPrint("🎨 New pastel color: $currentColor, textColor: $textColor");
     });
+
+    if (isAutomatic) {
+      _shakeController.forward(from: 0);
+    }
   }
 
   // todo get contrasting color
@@ -107,19 +137,31 @@ class _HomeViewState extends State<HomeView> {
         curve: Curves.easeInOut,
         color: currentColor,
         child: Center(
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 800),
-            child: Padding(
-              key: ValueKey(_quote),
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Text(
-                _quote,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: textColor,
-                  height: 1.4,
+          child: AnimatedBuilder(
+            animation: _shakeAnimation,
+            builder: (context, child) {
+              return Transform.translate(
+                offset: Offset(
+                  sin(_shakeAnimation.value * pi * 4) * 5,
+                  0,
+                ),
+                child: child,
+              );
+            },
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 800),
+              child: Padding(
+                key: ValueKey(_quote),
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  _quote,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
+                    height: 1.4,
+                  ),
                 ),
               ),
             ),
@@ -127,5 +169,12 @@ class _HomeViewState extends State<HomeView> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _autoChangeTimer?.cancel();
+    _shakeController.dispose();
+    super.dispose();
   }
 }
